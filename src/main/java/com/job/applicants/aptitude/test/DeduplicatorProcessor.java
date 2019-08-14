@@ -6,7 +6,12 @@ import org.apache.nifi.processor.ProcessContext;
 import org.apache.nifi.processor.ProcessSession;
 import org.apache.nifi.processor.Relationship;
 import org.apache.nifi.processor.exception.ProcessException;
+import org.apache.nifi.processor.io.InputStreamCallback;
+import org.apache.nifi.stream.io.StreamUtils;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -35,6 +40,20 @@ public class DeduplicatorProcessor extends AbstractProcessor {
     public void onTrigger(ProcessContext context, ProcessSession session) throws ProcessException {
         //implement your code here
         FlowFile flowfile = session.get();
+        final byte[] byteBuffer = new byte[200];
+        session.read(flowfile, new InputStreamCallback() {
+            @Override
+            public void process(InputStream in) throws IOException {
+                StreamUtils.fillBuffer(in, byteBuffer, false);
+            }
+        });
+        String d = null;
+        try {
+             d =  new String(byteBuffer,"UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        System.out.println(d);
 
         session.transfer(flowfile, SUCCESS);
     }
