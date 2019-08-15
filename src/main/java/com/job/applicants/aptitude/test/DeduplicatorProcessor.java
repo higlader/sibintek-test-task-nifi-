@@ -40,7 +40,8 @@ public class DeduplicatorProcessor extends AbstractProcessor {
     public void onTrigger(ProcessContext context, ProcessSession session) throws ProcessException {
         //implement your code here
         FlowFile flowfile = session.get();
-        final byte[] byteBuffer = new byte[200];
+        int size = (int) flowfile.getSize();
+        byte[] byteBuffer = new byte[size];
         session.read(flowfile, new InputStreamCallback() {
             @Override
             public void process(InputStream in) throws IOException {
